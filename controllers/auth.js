@@ -48,7 +48,7 @@ const login = async (req,res)=>{
             return res.status(401).json({message: "Incorrect email or password"});
         }
         //if password matches we gonna send jsonwebToken to the client
-        const token = jwt.sign({ userId: user._id, userName: user.userName }, process.env.jwt_secret);
+        const token = jwt.sign({ userId: user._id, userName: user.userName ,userEmail: user.userEmail}, process.env.jwt_secret);
         res.status(200).header('Authorization', `Bearer ${token}`).json({ message: 'Login successful' });
     }
     catch(err){

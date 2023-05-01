@@ -10,7 +10,8 @@ async function  verifyToken(req,res,next) {
 
     try{
         const decoded = await jwt.verify(token,process.env.jwt_secret);
-        req.user = decoded.userId;
+        console.log(decoded);
+        req.userId = decoded.userId;
         next();
     }
     catch(err){
@@ -18,3 +19,6 @@ async function  verifyToken(req,res,next) {
         res.status(402).json({message: 'Invalid token'});
     }
 }
+
+module.exports = verifyToken;
+
