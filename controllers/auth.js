@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt= require('bcrypt');
-
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const register = async (req,res)=>{
     try{
@@ -34,8 +35,26 @@ const register = async (req,res)=>{
         res.status(500).send("could not register");
     }
 }
-const login = async ()=>{
-    console.login("welcome to login function");
+const login = async (req,res)=>{
+    const {userEmail,userPassword} = req.body;
+    try{
+        const user = await User.findOne({userEmail});
+        if(!user) {
+            return res.status(401).json({message: "Incorrect email or password"});
+        }
+        //now we will check if password matches
+        const isPasswordMatch = await bcrypt.compare(userPassword,user.userPassword);
+        if(!isPasswordMatch){
+            return res.status(401).json({message: "Incorrect email or password"});
+        }
+        //if password matches we gonna send jsonwebToken to the client
+        const token = jwt.sign({ userId: user._id, userName: user.userName }, process.env.jwt_secret);
+        res.status(200).header('Authorization', `Bearer ${token}`).json({ message: 'Login successful' });
+    }
+    catch(err){
+        res.status(500).json({message : "error in login"});
+    }
+    console.log("welcome to login function");
 }
 module.exports = {
     register,
