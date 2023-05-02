@@ -1,15 +1,15 @@
 const router = require('express').Router();
 const token = require('./jwtVerify');
-const userModel = require('../models/user');
-const product = require('../models/product');
-const user = require('../models/user');
+const userModel = require('../models/User');
+const product = require('../models/Product');
+
 
 //get all users 
 router.get('/',token,async (req,res)=>{
     const user = await userModel.findOne({
         _id : req.userId
     });
-    console.log(user);
+    // console.log(user);
     if(user && user.isAdmin) {
         userData = await userModel.find();
         res.status(200).json({
@@ -21,6 +21,10 @@ router.get('/',token,async (req,res)=>{
     }
 });
 
+//     TODO FUNCTIONS         
+
+//additemtoCart
+//delete user
 
 
 

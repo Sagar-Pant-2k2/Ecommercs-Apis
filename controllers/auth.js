@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/User');
 const bcrypt= require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -18,7 +18,7 @@ const register = async (req,res)=>{
             
             //first we should check if user with same id exist
         const exist = await User.findOne({
-            serEmail:req.body.userEmail
+                userEmail:req.body.userEmail
         })
             
         //saving newUser to database

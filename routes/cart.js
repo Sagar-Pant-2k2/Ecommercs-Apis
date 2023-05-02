@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const tokenChecker = require('./jwtVerify');
 
-const cart = require('../models/cart');
+const cart = require('../models/Cart');
 
 //Get cart items
 router.get('/',tokenChecker,(req,res)=>{
@@ -11,8 +11,9 @@ router.get('/',tokenChecker,(req,res)=>{
 })
 
 // Add an item to the cart
-router.post('/',tokenChecker,async(req,res)={
-    req.userId
+router.post('/:productId',tokenChecker,async(req,res)={
+    
+    const newCart
 });
 
 

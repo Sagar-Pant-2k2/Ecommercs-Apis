@@ -10,7 +10,7 @@ async function  verifyToken(req,res,next) {
 
     try{
         const decoded = await jwt.verify(token,process.env.jwt_secret);
-        console.log(decoded);
+        // console.log(decoded);
         req.userId = decoded.userId;
         next();
     }
