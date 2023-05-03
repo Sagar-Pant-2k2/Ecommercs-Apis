@@ -25,11 +25,19 @@ router.post('/addItems/:productId',tokenChecker,async(req,res)=>{
             items: [],
         });
     }
-    cart.items.push({
-        product: req.params.productId,
-        quantity: req.body.quantity,
-        price: req.body.price   
-    });
+    
+    const index = cart.items.findIndex(item=>{
+        return item.product.toString()===req.params.productId});
+    if(index===-1){
+            cart.items.push({
+            product: req.params.productId,
+            quantity: req.body.quantity,
+            price: req.body.price   
+        });
+    }
+    else{
+        cart.items[index].quantity++;
+    }
     
     await cart.save();
     return res.status(200).json({message: "item added to cart"});
@@ -37,7 +45,7 @@ router.post('/addItems/:productId',tokenChecker,async(req,res)=>{
         
     
     catch(err){
-        res.status(500).json({"message":"yhn pe hai internal server error" + err.message});
+        res.status(500).json({"message":"yhn pe hai internal server error " + err});
     }
 });
 
