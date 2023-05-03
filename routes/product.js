@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Product = require('../models/Product');
 const { verify } = require('jsonwebtoken');
 const verifyToken = require('./jwtVerify');
+const Cart = require('../models/Cart');
 router.get('/',async (req,res)=>{
     const products = await Product.find();
     res.status(200).json({"products": products});
@@ -39,7 +40,7 @@ router.post('/',jwtVerify,async (req,res)=>{
 });
 
 //add to cart
-router.post('/:id',verifyToken,async (req,res)=>{
+router.post('/addToCart/:id',verifyToken,async (req,res)=>{
     const user = await User.findOne({
         _id: req.userId
     })
