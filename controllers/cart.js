@@ -1,6 +1,8 @@
 const tokenChecker = require('../routes/jwtVerify');
 const User = require('../models/User');
 const Cart = require('../models/Cart');
+const orderModel = require('../models/Order');
+const Product = require('../models/Product');
 
 //function to empty whole cart
 const emptyCart = async(req,res)=>{
@@ -38,19 +40,20 @@ const delteItem = async(req,res)=>{
 
 //addItem
 const addItem = async(req,res)=>{ 
-    // const user = User.findOne({_id: req.userId});
+    
     try{
     let cart = await Cart.findOne({ userId: req.userId });
-    if(cart === null){
+    if(cart === null){      //if no cart create one
         cart = new Cart({
             userId: req.userId, 
             items: [],
         });
     }
-    
-    const index = cart.items.findIndex(item=>{
-        return item.product.toString()===req.params.productId});
+    cart.items.forEach(element => {
+        if(element.productId)
+    });
     if(index===-1){
+            nprice = req.body.quantity* 
             cart.items.push({
             product: req.params.productId,
             quantity: req.body.quantity,
@@ -82,9 +85,54 @@ const getItems = async(req,res)=>{
     catch(err){ res.status(500).json({message:"Can't fetch cart items"}); }
 }
 
+//placeOrder
+const placeOrder = async(req,res)=>{
+    try{
+        const user = await User.find({_id:req.userId});
+        if(user && (!user.isAdmin)) {
+            const userCart = await Cart.findOne({userId: req.userId});
+            if(!cart || cart.items.length===0){
+                return res.status(400).json({ message: "Your cart is empty" });
+            }
+
+            //total amount
+            let totalAmount = 0;
+            for(const x of userCart.items){
+                const item = await Product.findOne({_id:x.productId});
+                if(!item){
+                    return res.status(400).json({message:"one of the items in your cart is invalid"});
+                }
+                totalAmount += item.price * x.quantity;
+            }
+
+            //create new order
+            const newOrder = new orderModel({
+                user: req.userId,
+                products: cart.products,
+                totalAmount,
+                shippingAddress: req.body.shippingAddress,
+                paymentMethod: req.body.paymentMethod,
+              });
+
+            //save newOrder
+            await newOrder.save();
+
+            //clearCart
+            await Cart.findOneAndUpdate({user: req.userId},{items: []})
+        }
+        else{
+            res.status(402).json({"message":"you can't place order"})
+        }
+    }
+    catch(err){
+        res.status(500).json({"message":"internal server error in placing order"});
+    }
+}
+
 module.exports = {
     emptyCart,
     delteItem,
     addItem,
-    getItems
+    getItems,
+    placeOrder
 }

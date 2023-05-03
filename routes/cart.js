@@ -7,9 +7,11 @@ const cartFunctions = require('../controllers/cart');
 //Get cart items
 router.get('/',tokenChecker,cartFunctions.getItems);
 // Add an item to the cart
-router.post('/addItems/:productId',tokenChecker,cartFunctions.addItem);
+router.post('/:productId',tokenChecker,cartFunctions.addItem);
 // delete item from cart
 router.delete('/:id',tokenChecker,cartFunctions.delteItem);
+//placeOrder
+router.post('/order/:id',tokenChecker,cartFunctions.placeOrder);
 //emptyCart 
 router.delete('/',tokenChecker,cartFunctions.emptyCart);
 

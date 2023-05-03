@@ -2,14 +2,14 @@ const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema ({
         user: {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
         },
         products : [
             {
                 product : {
-                    type:Schema.Types.ObjectId,
+                    type:mongoose.Schema.Types.ObjectId,
                     ref: 'Product',
                     required: true
                 },
@@ -19,8 +19,11 @@ const orderSchema = new mongoose.Schema ({
                 }
             }
         ],
+        shippingAddress: {type:String,required:true},
+        paymentMethod: {type:String,required:true,enum:["cash on delivery","online payment"],default:"cash on delivery"},
         totalAmount : {
             type: Number,
+            default : 0,
             required: true
         },
         status: {
