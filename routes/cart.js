@@ -8,7 +8,7 @@ const Cart = require('../models/Cart');
 router.get('/',tokenChecker,async(req,res)=>{
     try{
         const userCart = await Cart.findOne({userId :req.userId}).populate('items.product','name quantity price');
-        if(!userCart) { res.status(200).json({message:"Cart is empty"}) }
+        if(!userCart || userCart.items.length===0) { res.status(200).json({message:"Cart is empty"}) }
         else {res.status(200).json((userCart)); } 
     }
     catch(err){ res.status(500).json({message:"Can't fetch cart items"}); }
@@ -46,7 +46,19 @@ router.post('/addItems/:productId',tokenChecker,async(req,res)=>{
 
 // delete items from cart
 
+
 //emptyCart 
-router.delete('/')
+router.delete('/',tokenChecker,async(req,res)=>{
+    try{
+        const userCart = await Cart.findOne({userId :req.userId}).populate('items.product','name quantity price');
+        if(!userCart) { res.status(200).json({message:"Cart is empty already empty"}) }
+        else {
+            userCart.items = [];
+            await userCart.save();
+            res.status(200).json((userCart)); 
+        } 
+    }
+    catch(err){ res.status(500).json({message:"Can't fetch cart items"}); }
+})
 
 module.exports = router
