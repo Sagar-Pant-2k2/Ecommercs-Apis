@@ -133,7 +133,19 @@ const placeOrder = async(req,res)=>{
               });
             
             //save newOrder
+
+            userCart.items.forEach(async (element) => {
+                try {
+                  const Prod = await Product.findOne({ _id: element.product });
+                  Prod.quantity -= element.quantity;
+                  await Prod.save();
+                } catch (error) {
+                  console.error(`Failed to update product ${element.product}: ${error}`);
+                }
+              });
+            //while placing order we have to modify the availability of products
             await newOrder.save();
+            
 
             //clearCart
             userCart.items = [];
