@@ -1,5 +1,5 @@
 //TODO :function to edit products 
-// as of now admin have to delete and create product again inorder to edit it
+// as of now admin have to delete and create product again in order to edit it
 
 const Cart = require('../models/Cart');
 const productModel = require('../models/Product');

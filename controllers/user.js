@@ -1,7 +1,6 @@
 const userModel = require('../models/User');
 const product = require('../models/Product');
 const userCart = require('../models/Cart');
-//forgetPassword**
 
 //only admin can see list of users
 const getAllUsers = async (req,res)=>{
@@ -23,7 +22,7 @@ const getAllUsers = async (req,res)=>{
 //editProfile
 const editProfile = async(req,res)=>{
     try{
-
+        
         const user = await userModel.findOne({_id:req.userId});
         if(user){
             if(req.body.userName) user.userName=req.body.userName;
@@ -61,21 +60,21 @@ const deleteUserById = async (req,res)=>{
     }
     catch (err) {
         res.status(500).json({ message: "Couldn't delete user: " + err });
-     }
+    }
 }
 
 
 // delete profile
 const deleteProfile = async (req, res) => {
     try {
-      const user = await userModel.findOne({_id:req.userId});
-      const cart = await userCart.findOne({userId: req.userId});
-      if(cart) {await userCart.findOneAndDelete({userId: req.userId });}
-
+        const user = await userModel.findOne({_id:req.userId});
+        const cart = await userCart.findOne({userId: req.userId});
+        if(cart) {await userCart.findOneAndDelete({userId: req.userId });}
+        
       if (user) {await userModel.findOneAndDelete(req.userId); res.status(200).json({"message":"deleted user successfully"})}
       else {res.status(500).json({"message": "no such user exist"})}
     } catch (err) {
-      res.status(500).json({ message: "Couldn't delete user: " + err });
+        res.status(500).json({ message: "Couldn't delete user: " + err });
     }
 }
 
@@ -85,9 +84,9 @@ const getProfile = async(req,res)=>{
     console.log(user);
     if(user) {res.status(200).json({userData: user});}
     else {res.status(404).json({"message":"user not found"});}
-  } catch (error) {
+} catch (error) {
     res.status(500).json({"message":"internal error while fetching user Profile"});
-  }
+}
 }
 module.exports = {
     getAllUsers,
@@ -96,3 +95,4 @@ module.exports = {
     editProfile,
     getProfile
 }
+//IMPROVEMENT : forgetPassword** route should be there too

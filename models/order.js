@@ -8,18 +8,24 @@ const orderSchema = new mongoose.Schema ({
         },
         products : [
             {
-                product : {
-                    type:mongoose.Schema.Types.ObjectId,
+                product: {
+                    type: mongoose.Schema.Types.ObjectId,
                     ref: 'Product',
                     required: true
                 },
                 quantity: {
-                    type:Number,
+                    type: Number,
+                    required: true,
+                    default: 1,
+                },
+                price : {
+                    type: Number,
+                    default:0,
                     required: true
                 }
-            }
+            },
         ],
-        shippingAddress: {type:String,required:true},
+        shippingAddress: {type:String,required:true,default:"campus shop"},
         paymentMethod: {type:String,required:true,enum:["cash on delivery","online payment"],default:"cash on delivery"},
         totalAmount : {
             type: Number,
@@ -29,7 +35,7 @@ const orderSchema = new mongoose.Schema ({
         status: {
             type:String,
             enum: ['Pending', 'Delivered', 'Cancelled'],
-            default: 'pending'
+            default: 'Pending'
         }
 },
 {timestamps:true});
