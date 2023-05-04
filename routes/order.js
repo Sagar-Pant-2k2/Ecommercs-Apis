@@ -3,7 +3,7 @@ const tokenChecker = require('./jwtVerify');
 const orderController = require('../controllers/order');
 
 //place an order
-router.post('/placeOrder',tokenChecker,orderController.placeOrder);
+//done in cartRoute
 
 //cancelOrder
 router.post('/cancelOrder/:orderId',tokenChecker,orderController.cancelOrder);
@@ -15,8 +15,9 @@ router.get('/myOrders',tokenChecker,orderController.myOrders);
 router.get('/',tokenChecker,orderController.getAllOrders);
 
 //getOrder
-router.get('/:orderId',tokenChecker,orderController.getOrder);
+// orderStatus(admin will change  when delivered) 
 
+router.get('/:orderId',tokenChecker,orderController.getOrder);
 
 
 

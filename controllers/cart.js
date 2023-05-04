@@ -45,6 +45,9 @@ const addItem = async(req,res)=>{
 
         //check if product exist or not 
         if(!Prod){return res.status(404).json({"message":"no such product available"})};
+
+        //quantity of available product
+        let quant = Prod.quantity;
         //caclulate additional price
         
         const Price = (Number(req.body.quantity) * Number(Prod.price));
@@ -59,20 +62,26 @@ const addItem = async(req,res)=>{
             });
             }
             const idx = cart.items.findIndex(ele=>String(ele.product)===String(req.params.productId));
-
+            
             //if item is is not present already
             if(idx===-1){
+                let qty = 1;
+                if(req.body.quantity){qty = ((quant<req.body.quantity)?quant:req.body.quantity)}
                 cart.items.push({
                     product: req.params.productId,
-                    quantity: req.body.quantity,
+                    quantity: qty,
                     price: Price
-                })
+                });
             }
             //if its present just increase quantity
             else {
-                cart.items[idx].quantity+=(req.body.quantity);
-                cart.items[idx].price+=Price;
+                let qty = 1;
+                if(req.body.quantity){qty = ((quant<req.body.quantity)?quant:req.body.quantity)}
+                cart.items[idx].quantity+=qty;
+                cart.items[idx].quantity = ((quant<cart.items[idx].quantity)?quant:cart.items[idx].quantity);
+                cart.items[idx].price=(cart.items[idx].quantity*Price);
             }
+
             let totalAmount = 0;
             cart.items.forEach(ele=>{totalAmount+=ele.price});
             cart.totalAmount=totalAmount;
@@ -87,7 +96,7 @@ const addItem = async(req,res)=>{
 }
 
 
-//getItems 
+//getCartItems 
 const getItems = async(req,res)=>{
     try{
         const userCart = await Cart.findOne({userId :req.userId}).populate('items.product','name quantity price');

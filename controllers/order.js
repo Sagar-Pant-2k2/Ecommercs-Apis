@@ -11,7 +11,7 @@ const getAllOrders = async (req,res)=>{
             const orders = await orderModel.find();
             res.status(200).json({"orders":orders});
         }
-        else {json.status(402).json({"message": "you are not authenticated"})};
+        else {res.status(402).json({"message": "you are not authenticated"})};
     } catch (error) {
         json.status(500).json({"message":"internal server error can't get all orders"});
     }
@@ -23,10 +23,11 @@ const updateOrderStatus = async (req,res)=>{
     try {
         const user = userModel.findOne({_id:req.userId});
         if(user && user.isAdmin){
-            const orders = await orderModel.findOne({_id = req});
-            res.status(200).json({"orders":orders});
+            const order = await orderModel.findOne({_id : req.orderId});
+            order.status = req.body.orderStatus;
+            res.status(200).json({"message":"success"});
         }
-        else {json.status(402).json({"message": "you are not authenticated"})};
+        else {res.status(402).json({"message": "you are not authenticated"})};
     } catch (error) {
         json.status(500).json({"message":"internal server error can't get all orders"});
     }
