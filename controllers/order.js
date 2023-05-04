@@ -1,12 +1,14 @@
 const { json } = require('express');
 const orderModel = require('../models/Order');
 const userModel = require('../models/User');
+const productModel = require('../models/Product');
+const Cart = require('../models/Cart');
 
 
 //getAllOrders(admin only)
 const getAllOrders = async (req,res)=>{
     try {
-        const user = userModel.find({_id:req.userId});
+        const user = await userModel.findOne({_id:req.userId});
         if(user && user.isAdmin){
             const orders = await orderModel.find();
             res.status(200).json({"orders":orders});
@@ -18,75 +20,48 @@ const getAllOrders = async (req,res)=>{
 }
 
 
-//updateOrderStatus(admin only)
+//updateOrderStatus(admin only) mark as delivered
 const updateOrderStatus = async (req,res)=>{
     try {
-        const user = userModel.findOne({_id:req.userId});
+        const user = await userModel.findOne({_id:req.userId});
+        // console.log(user);
         if(user && user.isAdmin){
-            const order = await orderModel.findOne({_id : req.orderId});
-            order.status = req.body.orderStatus;
-            res.status(200).json({"message":"success"});
+            const order = await orderModel.findOne({_id : req.params.orderId});
+            if(!order) {return res.status(404).json({"message":"no such order"})}
+            order.status = "Delivered";
+            await order.save();
+            res.status(200).json({"message":"successfully delivered product"});
         }
-        else {res.status(402).json({"message": "you are not authenticated"})};
+        else {res.status(402).json({"message": "you are not authenticated (delivery)"})};
     } catch (error) {
-        json.status(500).json({"message":"internal server error can't get all orders"});
+        res.status(500).json({"message":"can't set it to delivered" + error});
     }
 }
 
 
-//getOrder(only user can) particular order
-const getOrder = async (req,res)=>{
-    try {
-        const requestingUser = await userModel.findOne({_id:req.userId});
-        if(requestingUser && (!requestingUser.isAdmin)){
-            const order = await orderModel.findOne({user: requestingUser,_id: req.params.orderId});
-            if(order){
-                res.status(200).json({"orderDetails":order});
-            }
-            else{ res.status(401).json({"message":"no such order"}); }
-        }
-        else{ res.status(401).json({"message":"you ain't authenticated to get order details"}); }
-    } catch (error) {
-        json.status(500).json({"message":"internal server error can't fetch your orders"});
-    }
-}
 
-//placeOrer
-// const placeOrder = async (req,res)=>{
-//     user: req.bod,
-//     products : [
-//         {
-//             product : {
-//                 type:Schema.Types.ObjectId,
-//                 ref: 'Product',
-//                 required: true
-//             },
-//             quantity: {
-//                 type:Number,
-//                 required: true
-//             }
-//         }
-//     ],
-//     totalAmount : {
-//         type: Number,
-//         required: true
-//     },
-//     status: {
-//         type:String,
-//         enum: ['Pending', 'Delivered', 'Cancelled'],
-//         default: 'pending'
-//     }
-// }
 
 //cancelOrder
 // user can only do this for pending orders
+// add items back to available products too
 const cancelOrder = async (req,res)=>{
     try{
-        const requestingUser = await userModel.findOne({_id:req.userId});
-        if(requestingUser && (!requestingUser.isAdmin)){
-            const order = await orderModel.findOne({user: requestingUser,_id: req.params.orderId});
+        const user  = await userModel.findOne({_id:req.userId});
+        if(user && !user.isAdmin){
+
+            const order = await orderModel.findOne({_id: req.params.orderId});
+            if(!order) {return res.status(400).json({"message":"no such orders"})}
             if(order.status === "Pending"){
                 order.status = "Cancelled";
+                //let add products back 
+                order.products.forEach(async (element)=>{
+                    try{   
+                        const Product = await productModel.findOne({_id:element.product});
+                    }
+                    catch(err){
+                        return res.status(404).json({"message":"some error occured"});
+                    }
+                })
                 await order.save();
                 res.status(200).json({"message":"successfully canceled the order"});
             }
@@ -95,16 +70,16 @@ const cancelOrder = async (req,res)=>{
         else{ res.status(401).json({"message":"you can't cancel order"}); }
     }
     catch(error){
-        res.status(500).json({"message":"could not get your orders (internal error)"});
+        res.status(500).json({"message":"could not cancel your order (internal error)"});
     }
 }
 
 //myOrders
 const myOrders = async (req,res)=>{
     try{
-        const requestingUser = await userModel.findOne({_id:req.userId});
-        if(requestingUser && (!requestingUser.isAdmin)){
-            const orders = await orderModel.find({user: requestingUser});
+        const user = await userModel.findOne({_id:req.userId});
+        if(user && !user.isAdmin){
+            const orders = await orderModel.find({user: user});
             res.status(200).json({"orders":orders});
         }
         else{
@@ -112,16 +87,16 @@ const myOrders = async (req,res)=>{
         }
     }
     catch(error){
-        res.status(500).json({"message":"could not get your orders (internal error)"});
+        res.status(500).json({"message":"could not get your orders (internal error)" + error.message});
     }
-
 }
 
 
 module.exports = {
     // placeOrder,
     // cancelOrder,
-    getOrder,
-    getAllOrders,
+    cancelOrder,
     myOrders,
+    getAllOrders,
+    updateOrderStatus
 }

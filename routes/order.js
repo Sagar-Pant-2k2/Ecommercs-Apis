@@ -14,10 +14,9 @@ router.get('/myOrders',tokenChecker,orderController.myOrders);
 //getAllOrders
 router.get('/',tokenChecker,orderController.getAllOrders);
 
-//getOrder
-// orderStatus(admin will change  when delivered) 
 
-router.get('/:orderId',tokenChecker,orderController.getOrder);
+// orderStatus(admin will change  when delivered) To mark delivered 
+router.post('/:orderId',tokenChecker,orderController.updateOrderStatus);
 
 
 
